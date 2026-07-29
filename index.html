@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSNT — Documentation</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<div class="header">
+    <div class="header-inner">
+        <h1>JSNT</h1>
+    </div>
+</div>
+
+<div class="layout">
+
+    <nav class="sidebar">
+        <div class="sidebar-group">
+            <div class="sidebar-group-title">Getting started</div>
+            <a href="#usage">Usage</a>
+        </div>
+        <div class="sidebar-group">
+            <div class="sidebar-group-title">Core</div>
+            <a href="#parse">parse</a>
+            <a href="#get">get</a>
+            <a href="#download">download</a>
+            <a href="#replace">replace</a>
+        </div>
+        <div class="sidebar-group">
+            <div class="sidebar-group-title">Read &amp; write</div>
+            <a href="#set">set</a>
+            <a href="#has">has</a>
+            <a href="#remove">remove</a>
+            <a href="#renameKey">renameKey</a>
+        </div>
+        <div class="sidebar-group">
+            <div class="sidebar-group-title">Query</div>
+            <a href="#keys">keys</a>
+            <a href="#count">count</a>
+            <a href="#isEmpty">isEmpty</a>
+            <a href="#filter">filter</a>
+            <a href="#sort">sort</a>
+            <a href="#equal">equal</a>
+        </div>
+        <div class="sidebar-group">
+            <div class="sidebar-group-title">Transform</div>
+            <a href="#merge">merge</a>
+            <a href="#flatten">flatten</a>
+            <a href="#map">map</a>
+            <a href="#group">group</a>
+            <a href="#toArray">toArray</a>
+        </div>
+        <div class="sidebar-group">
+            <div class="sidebar-group-title">Aggregate</div>
+            <a href="#sum">sum</a>
+            <a href="#average">average</a>
+        </div>
+        <div class="sidebar-group">
+            <div class="sidebar-group-title">Serialize</div>
+            <a href="#toString">toString</a>
+            <a href="#toJson">toJson</a>
+            <a href="#toYAML">toYAML</a>
+            <a href="#parseYAML">parseYAML</a>
+            <a href="#toXML">toXML</a>
+            <a href="#parseXML">parseXML</a>
+            <a href="#validate">validate</a>
+        </div>
+        <div class="sidebar-group">
+            <div class="sidebar-group-title">Dates</div>
+            <a href="#date-convert">date.convert</a>
+            <a href="#date-diff">date.diff</a>
+            <a href="#date-now">date.now</a>
+            <a href="#date-add">date.add</a>
+            <a href="#date-substr">date.substr</a>
+        </div>
+        <div class="sidebar-group">
+            <div class="sidebar-group-title">Cache</div>
+            <a href="#cache-new">cache.new</a>
+            <a href="#cache-add">cache.add</a>
+            <a href="#cache-get">cache.get</a>
+            <a href="#cache-remove">cache.remove</a>
+            <a href="#cache-clear">cache.clear</a>
+        </div>
+    </nav>
+
+    <main>
+
+        <!-- GETTING STARTED -->
+        <section>
+            <div class="doc-header">
+                <h2 class="doc-component-name">JSNT</h2>
+                <p class="doc-component-desc">Lightweight static utility library for working with JSON data in vanilla JavaScript — read, query, transform, convert, and cache objects.</p>
+            </div>
+
+            <div class="doc-section" id="usage">
+                <div class="doc-section-title">Usage</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-html">&lt;script src="/dist/jsnt.min.js"&gt;&lt;/script&gt;</code></pre>
+                    </div>
+                    <p class="note">No setup — every helper is a static method on the global <code>jsnt</code> object, plus the <code>jsnt.date</code> and <code>jsnt.cache</code> sub-namespaces.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">const posts = {
+    1: { title: 'First',  views: 30 },
+    2: { title: 'Second', views: 90 },
+}
+
+jsnt.sum(posts, 'views')     // → 120
+jsnt.sort(posts, 'views')    // → posts ordered by views
+jsnt.flatten({ a: { b: 1 } }) // → { 'a.b': 1 }</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CORE -->
+        <section>
+            <div class="doc-header">
+                <h2 class="doc-component-name">Core</h2>
+                <p class="doc-component-desc">Reading JSON from strings, URLs, and objects, and writing it back out.</p>
+            </div>
+
+            <div class="doc-section" id="parse">
+                <div class="doc-section-title">parse</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">await jsnt.parse(data)  // → object | null</code></pre>
+                    </div>
+                    <p class="note">Resolves <code>data</code> to an object. A string starting with <code>http</code> is fetched and parsed; any other string is parsed with <code>JSON.parse</code>; an object is returned as-is. Returns <code>null</code> and logs on error.</p>
+                    <table class="api-table">
+                        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>data</code> <span class="required-badge">required</span></td>
+                                <td><span class="type-badge">string</span> | <span class="type-badge">object</span></td>
+                                <td>A URL, a JSON string, or an object.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">await jsnt.parse('{"a":1}')                 // → { a: 1 }
+await jsnt.parse('https://api.site/data.json') // fetch + parse
+await jsnt.parse({ a: 1 })                   // → { a: 1 }</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="get">
+                <div class="doc-section-title">get</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">await jsnt.get(url, callback)</code></pre>
+                    </div>
+                    <p class="note">Fetches a JSON file and passes the parsed object to <code>callback</code>. Throws on a non-2xx response or a parse error.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">await jsnt.get('/config.json', config =&gt; {
+    console.log(config.version)
+})</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="download">
+                <div class="doc-section-title">download</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">await jsnt.download(filename, content?)</code></pre>
+                    </div>
+                    <p class="note">Triggers a browser download. When <code>content</code> is omitted, <code>filename</code> is fetched first and its body is saved.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.download('user.json', jsnt.toString({ id: 1 }))
+jsnt.download('/remote.json')  // fetch, then save under the same name</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="replace">
+                <div class="doc-section-title">replace</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">await jsnt.replace(url, key, value)  // → object</code></pre>
+                    </div>
+                    <p class="note">Fetches a JSON file, sets one top-level <code>key</code> to <code>value</code>, and returns the updated object. Throws if any argument is missing.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">const updated = await jsnt.replace('/user.json', 'active', true)</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- READ & WRITE -->
+        <section>
+            <div class="doc-header">
+                <h2 class="doc-component-name">Read &amp; write</h2>
+                <p class="doc-component-desc">Reach into and edit objects by key or dot-path.</p>
+            </div>
+
+            <div class="doc-section" id="set">
+                <div class="doc-section-title">set</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.set(obj, path, value)</code></pre>
+                    </div>
+                    <p class="note">Sets a value at a dot-separated <code>path</code>, mutating <code>obj</code> in place. Missing intermediate objects are created automatically.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">const user = {}
+jsnt.set(user, 'profile.name', 'Ada')
+// user → { profile: { name: 'Ada' } }</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="has">
+                <div class="doc-section-title">has</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.has(obj, path)  // → boolean</code></pre>
+                    </div>
+                    <p class="note">Returns <code>true</code> if the dot-separated <code>path</code> exists on <code>obj</code>.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.has({ profile: { name: 'Ada' } }, 'profile.name')  // → true
+jsnt.has({ profile: {} }, 'profile.age')                // → false</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="remove">
+                <div class="doc-section-title">remove</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.remove(obj, key)  // → object</code></pre>
+                    </div>
+                    <p class="note">Deletes a top-level <code>key</code> and returns the object. A JSON string is parsed first.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.remove({ a: 1, b: 2 }, 'b')  // → { a: 1 }</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="renameKey">
+                <div class="doc-section-title">renameKey</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.renameKey(obj, oldKey, newKey)  // → object</code></pre>
+                    </div>
+                    <p class="note">Returns a copy of <code>obj</code> with one key renamed. Returns the object unchanged if <code>oldKey</code> is absent.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.renameKey({ name: 'Ada' }, 'name', 'fullName')  // → { fullName: 'Ada' }</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- QUERY -->
+        <section>
+            <div class="doc-header">
+                <h2 class="doc-component-name">Query</h2>
+                <p class="doc-component-desc">Inspect, filter, sort, and compare objects.</p>
+            </div>
+
+            <div class="doc-section" id="keys">
+                <div class="doc-section-title">keys</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.keys(obj)  // → string[]</code></pre>
+                    </div>
+                    <p class="note">Top-level keys of the object.</p>
+                </div>
+            </div>
+
+            <div class="doc-section" id="count">
+                <div class="doc-section-title">count</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.count(obj)  // → number</code></pre>
+                    </div>
+                    <p class="note">Number of top-level keys.</p>
+                </div>
+            </div>
+
+            <div class="doc-section" id="isEmpty">
+                <div class="doc-section-title">isEmpty</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.isEmpty(obj)  // → boolean</code></pre>
+                    </div>
+                    <p class="note">Returns <code>true</code> when the object has no own keys.</p>
+                </div>
+            </div>
+
+            <div class="doc-section" id="filter">
+                <div class="doc-section-title">filter</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.filter(obj, condition)  // → object</code></pre>
+                    </div>
+                    <p class="note">Keeps entries whose value satisfies <code>condition(value)</code>, preserving keys.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">const users = { 1: { age: 30 }, 2: { age: 12 } }
+jsnt.filter(users, u =&gt; u.age &gt;= 18)  // → { 1: { age: 30 } }</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="sort">
+                <div class="doc-section-title">sort</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.sort(obj, key)  // → object</code></pre>
+                    </div>
+                    <p class="note">Returns a new object with entries ordered by the numeric <code>value[key]</code>, ascending.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">const posts = { a: { views: 90 }, b: { views: 30 } }
+jsnt.sort(posts, 'views')  // → { b: { views: 30 }, a: { views: 90 } }</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="equal">
+                <div class="doc-section-title">equal</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.equal(a, b)  // → boolean</code></pre>
+                    </div>
+                    <p class="note">Deep equality — recurses through objects and arrays comparing keys and values.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.equal({ a: [1, 2] }, { a: [1, 2] })  // → true
+jsnt.equal({ a: 1 }, { a: 1, b: 2 })      // → false</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TRANSFORM -->
+        <section>
+            <div class="doc-header">
+                <h2 class="doc-component-name">Transform</h2>
+                <p class="doc-component-desc">Reshape objects and arrays.</p>
+            </div>
+
+            <div class="doc-section" id="merge">
+                <div class="doc-section-title">merge</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.merge(...objects)  // → object</code></pre>
+                    </div>
+                    <p class="note">Shallow-merges any number of objects left to right — later keys win.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.merge({ a: 1 }, { b: 2 }, { a: 3 })  // → { a: 3, b: 2 }</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="flatten">
+                <div class="doc-section-title">flatten</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.flatten(obj)  // → object</code></pre>
+                    </div>
+                    <p class="note">Flattens a nested object into a single level with dot-path keys.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.flatten({ a: { b: { c: 1 } }, d: 2 })
+// → { 'a.b.c': 1, d: 2 }</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="map">
+                <div class="doc-section-title">map</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.map(obj, callback)  // → object | array</code></pre>
+                    </div>
+                    <p class="note">Recursively applies <code>callback</code> to every leaf value, keeping the object/array shape.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.map({ a: 1, b: { c: 2 } }, v =&gt; v * 10)
+// → { a: 10, b: { c: 20 } }</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="group">
+                <div class="doc-section-title">group</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.group(array, key)  // → object</code></pre>
+                    </div>
+                    <p class="note">Groups an array of objects into buckets keyed by the value of <code>key</code>.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.group([{ type: 'a', n: 1 }, { type: 'b', n: 2 }, { type: 'a', n: 3 }], 'type')
+// → { a: [ {…n:1}, {…n:3} ], b: [ {…n:2} ] }</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="toArray">
+                <div class="doc-section-title">toArray</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.toArray(obj)  // → array</code></pre>
+                    </div>
+                    <p class="note">The object's values as an array (<code>Object.values</code>).</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.toArray({ a: 1, b: 2 })  // → [1, 2]</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AGGREGATE -->
+        <section>
+            <div class="doc-header">
+                <h2 class="doc-component-name">Aggregate</h2>
+                <p class="doc-component-desc">Reduce a keyed collection to a single number.</p>
+            </div>
+
+            <div class="doc-section" id="sum">
+                <div class="doc-section-title">sum</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.sum(obj, key)  // → number</code></pre>
+                    </div>
+                    <p class="note">Sums <code>value[key]</code> across all values of the object.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.sum({ 1: { views: 30 }, 2: { views: 90 } }, 'views')  // → 120</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="average">
+                <div class="doc-section-title">average</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.average(obj, key)  // → number</code></pre>
+                    </div>
+                    <p class="note">Average of <code>value[key]</code> across all values.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.average({ 1: { views: 30 }, 2: { views: 90 } }, 'views')  // → 60</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SERIALIZE -->
+        <section>
+            <div class="doc-header">
+                <h2 class="doc-component-name">Serialize</h2>
+                <p class="doc-component-desc">Convert between objects and JSON, YAML, and XML.</p>
+            </div>
+
+            <div class="doc-section" id="toString">
+                <div class="doc-section-title">toString</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.toString(obj)  // → string</code></pre>
+                    </div>
+                    <p class="note"><code>JSON.stringify</code> shorthand.</p>
+                </div>
+            </div>
+
+            <div class="doc-section" id="toJson">
+                <div class="doc-section-title">toJson</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.toJson(string)  // → object</code></pre>
+                    </div>
+                    <p class="note"><code>JSON.parse</code> shorthand.</p>
+                </div>
+            </div>
+
+            <div class="doc-section" id="toYAML">
+                <div class="doc-section-title">toYAML</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.toYAML(obj)  // → string</code></pre>
+                    </div>
+                    <p class="note">Serializes an object to YAML, indenting nested objects by two spaces.</p>
+                    <div class="code-block">
+                        <pre><code class="language-yaml">jsnt.toYAML({ app: { name: 'Yurba', port: 80 } })
+// app:
+//   name: Yurba
+//   port: 80</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="parseYAML">
+                <div class="doc-section-title">parseYAML</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.parseYAML(string)  // → object</code></pre>
+                    </div>
+                    <p class="note">Parses flat <code>key: value</code> YAML into an object. Blank lines and <code>#</code> comments are skipped.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.parseYAML('name: Yurba\nport: 80')  // → { name: 'Yurba', port: '80' }</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="toXML">
+                <div class="doc-section-title">toXML</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.toXML(obj)  // → string</code></pre>
+                    </div>
+                    <p class="note">Serializes an object to an XML string wrapped in a <code>&lt;root&gt;</code> element.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.toXML({ user: { name: 'Ada' } })
+// → &lt;root&gt;&lt;user&gt;&lt;name&gt;Ada&lt;/name&gt;&lt;/user&gt;&lt;/root&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="parseXML">
+                <div class="doc-section-title">parseXML</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.parseXML(string)  // → object</code></pre>
+                    </div>
+                    <p class="note">Parses an XML string into a nested object. Repeated sibling tags collapse into an array.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.parseXML('&lt;root&gt;&lt;name&gt;Ada&lt;/name&gt;&lt;/root&gt;')  // → { name: 'Ada' }</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="validate">
+                <div class="doc-section-title">validate</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.validate(obj)  // → boolean</code></pre>
+                    </div>
+                    <p class="note">Returns <code>true</code> if the value round-trips through <code>JSON.stringify</code> / <code>JSON.parse</code> — i.e. it is JSON-serializable.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- DATES -->
+        <section>
+            <div class="doc-header">
+                <h2 class="doc-component-name">Dates</h2>
+                <p class="doc-component-desc">Work with unix timestamps in seconds via the <code>jsnt.date</code> namespace.</p>
+            </div>
+
+            <div class="doc-section" id="date-convert">
+                <div class="doc-section-title">date.convert</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.date.convert(unix, format, timeZone?)  // → string</code></pre>
+                    </div>
+                    <p class="note">Formats a unix timestamp. Tokens: <code>DD</code>, <code>MM</code>, <code>YYYY</code>, <code>hh</code>, <code>mm</code>, <code>ss</code>.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.date.convert(1700000000, 'DD.MM.YYYY hh:mm')  // → '14.11.2023 22:13'</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="date-diff">
+                <div class="doc-section-title">date.diff</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.date.diff(a, b, unit?)  // → number | object</code></pre>
+                    </div>
+                    <p class="note">Difference between two timestamps. With a <code>unit</code> (<code>years</code>, <code>months</code>, <code>days</code>, <code>hours</code>, <code>minutes</code>, <code>seconds</code>, <code>milliseconds</code>) returns that number; without one, returns an object of all units.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.date.diff(now, now - 3600, 'minutes')  // → 60</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="date-now">
+                <div class="doc-section-title">date.now</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.date.now()  // → number</code></pre>
+                    </div>
+                    <p class="note">Current unix timestamp in seconds.</p>
+                </div>
+            </div>
+
+            <div class="doc-section" id="date-add">
+                <div class="doc-section-title">date.add</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.date.add(unix, parts)  // → number</code></pre>
+                    </div>
+                    <p class="note">Adds a duration to a timestamp. <code>parts</code> accepts <code>years</code>, <code>months</code>, <code>days</code>, <code>hours</code>, <code>minutes</code>, <code>seconds</code> (each defaults to 0).</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.date.add(jsnt.date.now(), { days: 7, hours: 12 })</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="date-substr">
+                <div class="doc-section-title">date.substr</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.date.substr(unix, parts)  // → number</code></pre>
+                    </div>
+                    <p class="note">Subtracts a duration from a timestamp. Same <code>parts</code> shape as <a href="#date-add"><code>date.add</code></a>.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.date.substr(jsnt.date.now(), { months: 1 })</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CACHE -->
+        <section>
+            <div class="doc-header">
+                <h2 class="doc-component-name">Cache</h2>
+                <p class="doc-component-desc">A simple in-memory key–value store on the <code>jsnt.cache</code> namespace. Values live for the lifetime of the page.</p>
+            </div>
+
+            <div class="doc-section" id="cache-new">
+                <div class="doc-section-title">cache.new</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.cache.new(key, value)</code></pre>
+                    </div>
+                    <p class="note">Stores (or overwrites) a value under <code>key</code>.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.cache.new('user', { id: 1, name: 'Ada' })</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="cache-add">
+                <div class="doc-section-title">cache.add</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.cache.add(key, value)</code></pre>
+                    </div>
+                    <p class="note">Merges <code>value</code> into an existing entry. Works whether the stored entry is an object or a JSON string.</p>
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.cache.add('user', { role: 'admin' })  // → { id: 1, name: 'Ada', role: 'admin' }</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section" id="cache-get">
+                <div class="doc-section-title">cache.get</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.cache.get(key)  // → any</code></pre>
+                    </div>
+                    <p class="note">Reads the value stored under <code>key</code>.</p>
+                </div>
+            </div>
+
+            <div class="doc-section" id="cache-remove">
+                <div class="doc-section-title">cache.remove</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.cache.remove(key)</code></pre>
+                    </div>
+                    <p class="note">Deletes a single cache entry.</p>
+                </div>
+            </div>
+
+            <div class="doc-section" id="cache-clear">
+                <div class="doc-section-title">cache.clear</div>
+                <div class="gap-stack">
+                    <div class="code-block">
+                        <pre><code class="language-javascript">jsnt.cache.clear()</code></pre>
+                    </div>
+                    <p class="note">Empties the entire cache.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll()</script>
+<script>
+    const links = document.querySelectorAll('.sidebar a')
+    const sections = document.querySelectorAll('[id]')
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) return
+            links.forEach(l => l.classList.remove('is-active'))
+            const active = document.querySelector(`.sidebar a[href="#${entry.target.id}"]`)
+            if (active) active.classList.add('is-active')
+        })
+    }, { rootMargin: '-20% 0px -70% 0px' })
+
+    sections.forEach(s => observer.observe(s))
+</script>
+
+</body>
+</html>
