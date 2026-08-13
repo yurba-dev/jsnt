@@ -1,6 +1,7 @@
 {
   "name": "jsnt",
   "version": "1.0.0",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "build": "esbuild jsnt.js --bundle=false --minify --outfile=dist/jsnt.min.js"
