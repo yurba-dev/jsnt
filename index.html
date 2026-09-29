@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSNT — Documentation</title>
+    <title>JSNT - Documentation</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <link rel="stylesheet" href="index.css">
@@ -93,7 +93,7 @@
         <section>
             <div class="doc-header">
                 <h2 class="doc-component-name">JSNT</h2>
-                <p class="doc-component-desc">Lightweight static utility library for working with JSON data in vanilla JavaScript — read, query, transform, convert, and cache objects.</p>
+                <p class="doc-component-desc">Lightweight static utility library for working with JSON data in vanilla JavaScript - read, query, transform, convert, and cache objects.</p>
             </div>
 
             <div class="doc-section" id="usage">
@@ -102,7 +102,7 @@
                     <div class="code-block">
                         <pre><code class="language-html">&lt;script src="/dist/jsnt.min.js"&gt;&lt;/script&gt;</code></pre>
                     </div>
-                    <p class="note">No setup — every helper is a static method on the global <code>jsnt</code> object, plus the <code>jsnt.date</code> and <code>jsnt.cache</code> sub-namespaces.</p>
+                    <p class="note">No setup - every helper is a static method on the global <code>jsnt</code> object, plus the <code>jsnt.date</code> and <code>jsnt.cache</code> sub-namespaces.</p>
                     <div class="code-block">
                         <pre><code class="language-javascript">const posts = {
     1: { title: 'First',  views: 30 },
@@ -326,7 +326,7 @@ jsnt.sort(posts, 'views')  // → { b: { views: 30 }, a: { views: 90 } }</code><
                     <div class="code-block">
                         <pre><code class="language-javascript">jsnt.equal(a, b)  // → boolean</code></pre>
                     </div>
-                    <p class="note">Deep equality — recurses through objects and arrays comparing keys and values.</p>
+                    <p class="note">Deep equality - recurses through objects and arrays comparing keys and values.</p>
                     <div class="code-block">
                         <pre><code class="language-javascript">jsnt.equal({ a: [1, 2] }, { a: [1, 2] })  // → true
 jsnt.equal({ a: 1 }, { a: 1, b: 2 })      // → false</code></pre>
@@ -348,7 +348,7 @@ jsnt.equal({ a: 1 }, { a: 1, b: 2 })      // → false</code></pre>
                     <div class="code-block">
                         <pre><code class="language-javascript">jsnt.merge(...objects)  // → object</code></pre>
                     </div>
-                    <p class="note">Shallow-merges any number of objects left to right — later keys win.</p>
+                    <p class="note">Shallow-merges any number of objects left to right - later keys win.</p>
                     <div class="code-block">
                         <pre><code class="language-javascript">jsnt.merge({ a: 1 }, { b: 2 }, { a: 3 })  // → { a: 3, b: 2 }</code></pre>
                     </div>
@@ -534,7 +534,7 @@ jsnt.equal({ a: 1 }, { a: 1, b: 2 })      // → false</code></pre>
                     <div class="code-block">
                         <pre><code class="language-javascript">jsnt.validate(obj)  // → boolean</code></pre>
                     </div>
-                    <p class="note">Returns <code>true</code> if the value round-trips through <code>JSON.stringify</code> / <code>JSON.parse</code> — i.e. it is JSON-serializable.</p>
+                    <p class="note">Returns <code>true</code> if the value round-trips through <code>JSON.stringify</code> / <code>JSON.parse</code> - i.e. it is JSON-serializable.</p>
                 </div>
             </div>
         </section>
@@ -613,7 +613,7 @@ jsnt.equal({ a: 1 }, { a: 1, b: 2 })      // → false</code></pre>
         <section>
             <div class="doc-header">
                 <h2 class="doc-component-name">Cache</h2>
-                <p class="doc-component-desc">A simple in-memory key–value store on the <code>jsnt.cache</code> namespace. Values live for the lifetime of the page.</p>
+                <p class="doc-component-desc">A simple in-memory key-value store on the <code>jsnt.cache</code> namespace. Values live for the lifetime of the page.</p>
             </div>
 
             <div class="doc-section" id="cache-new">

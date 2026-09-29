@@ -1,6 +1,6 @@
 # JSNT
 
-Lightweight static utility library for working with JSON data in vanilla JavaScript — read, query, transform, convert, and cache objects.
+Lightweight static utility library for working with JSON data in vanilla JavaScript - read, query, transform, convert, and cache objects.
 
 ## Installation
 

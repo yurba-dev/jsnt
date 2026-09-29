@@ -23,8 +23,11 @@ class jsnt {
         try {
             if (filename) {
                 const content = await jsnt.#readTxt(filename)
+                if (content == null) throw new Error('Could not load ' + filename)
                 const dataObject = JSON.parse(content)
-                callback(dataObject)
+                // Awaited so async callback errors reject here
+                if (callback) await callback(dataObject)
+                return dataObject
             }
         } catch (error) {
             throw new Error('JSNT: ' + error)
@@ -35,6 +38,7 @@ class jsnt {
         try {
             if (!newContent) {
                 newContent = await jsnt.#readTxt(filename)
+                if (newContent == null) return
             }
 
             const blob = new Blob([newContent], { type: 'text/plain' })
@@ -45,25 +49,20 @@ class jsnt {
             downloadLink.download = filename
             downloadLink.click()
 
-            URL.revokeObjectURL(blobUrl)
+            // Revoked right after click(), Firefox may cancel it
+            setTimeout(() => URL.revokeObjectURL(blobUrl))
         } catch (error) {
             console.error(error)
         }
     }
 
     static async replace(filename, columnName, newValue) {
-        try {
-            if (filename && columnName && newValue) {
-                const content = await jsnt.#readTxt(filename)
-                const dataObject = JSON.parse(content)
-
-                dataObject[columnName] = newValue
-                return dataObject
-            }
-            throw new Error('JSNT: Missing parameters for jsnt.replace')
-        } catch (error) {
-            throw error
-        }
+        if (!filename || !columnName || newValue === undefined) throw new Error('JSNT: Missing parameters for jsnt.replace')
+        const content = await jsnt.#readTxt(filename)
+        if (content == null) throw new Error('JSNT: Could not load ' + filename)
+        const dataObject = JSON.parse(content)
+        dataObject[columnName] = newValue
+        return dataObject
     }
 
     static remove(jsonData, columnName) {
@@ -74,11 +73,13 @@ class jsnt {
 
     static set(jsonData, key, value) {
         const keys = key.split('.')
+        // Prototype pollution guard
+        if (keys.some(k => k == '__proto__' || k == 'constructor' || k == 'prototype')) return
         let currentObj = jsonData
 
         for (let i = 0; i < keys.length - 1; i++) {
             const currentKey = keys[i]
-            if (!currentObj[currentKey] || typeof currentObj[currentKey] != 'object') {
+            if (!Object.hasOwn(currentObj, currentKey) || !currentObj[currentKey] || typeof currentObj[currentKey] != 'object') {
                 currentObj[currentKey] = {}
             }
             currentObj = currentObj[currentKey]
@@ -92,7 +93,7 @@ class jsnt {
         let currentObj = jsonData
 
         for (const currentKey of keys) {
-            if (!currentObj.hasOwnProperty(currentKey)) {
+            if (currentObj == null || !Object.prototype.hasOwnProperty.call(currentObj, currentKey)) {
                 return false
             }
             currentObj = currentObj[currentKey]
@@ -209,7 +210,7 @@ class jsnt {
     static map(obj, callback) {
         if (Array.isArray(obj)) {
             return obj.map(item => jsnt.map(item, callback))
-        } else if (typeof obj == 'object') {
+        } else if (typeof obj == 'object' && obj != null) {
             return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, jsnt.map(value, callback)]))
         } else {
             return callback(obj)
@@ -227,16 +228,16 @@ class jsnt {
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit',
+                hourCycle: 'h23',
             }
-            const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date)
+            // Parts, not string offsets: en-US adds a comma and AM/PM
+            const parts = {}
+            new Intl.DateTimeFormat('en-US', options).formatToParts(date).forEach(part => {
+                parts[part.type] = part.value
+            })
+            const tokens = { YYYY: parts.year, DD: parts.day, MM: parts.month, hh: parts.hour, mm: parts.minute, ss: parts.second }
 
-            return format
-                .replace('DD', formattedDate.slice(3, 5))
-                .replace('MM', formattedDate.slice(0, 2))
-                .replace('YYYY', formattedDate.slice(6, 10))
-                .replace('hh', formattedDate.slice(11, 13))
-                .replace('mm', formattedDate.slice(14, 16))
-                .replace('ss', formattedDate.slice(17, 19))
+            return format.replace(/YYYY|DD|MM|hh|mm|ss/g, token => tokens[token])
         },
 
         diff(unixDate1, unixDate2, unit = undefined) {
@@ -244,7 +245,7 @@ class jsnt {
             const timeUnits = {
                 years: Math.floor(difference / (1000 * 60 * 60 * 24 * 365.25)),
                 months: Math.floor(difference / (1000 * 60 * 60 * 24 * 30.44)) % 12,
-                days: Math.floor(difference / (1000 * 60 * 60 * 24)) % 30.44,
+                days: Math.floor((difference / (1000 * 60 * 60 * 24)) % 30.44),
                 hours: Math.floor(difference / (1000 * 60 * 60)) % 24,
                 minutes: Math.floor(difference / (1000 * 60)),
                 seconds: Math.floor(difference / 1000),
@@ -323,8 +324,13 @@ class jsnt {
                     continue
                 }
 
-                const [key, value] = trimmedLine.split(':').map(part => part.trim())
-                data[key] = value
+                // First colon only, so URL values survive
+                const at = trimmedLine.indexOf(':')
+                if (at < 0) {
+                    data[trimmedLine] = undefined
+                    continue
+                }
+                data[trimmedLine.slice(0, at).trim()] = trimmedLine.slice(at + 1).trim()
             }
 
             return data
@@ -357,7 +363,7 @@ class jsnt {
 
             return convertObjectToYAML(data)
         } catch (error) {
-            console.error('Error during yaml-to-json conversion:', error)
+            console.error('Error during json-to-yaml conversion:', error)
             return null
         }
     }
@@ -369,33 +375,39 @@ class jsnt {
         const result = {}
 
         function parseNode(node, obj) {
-            if (node.hasChildNodes()) {
-                for (let i = 0; i < node.childNodes.length; i++) {
-                    const childNode = node.childNodes[i]
-                    if (childNode.nodeType == Node.ELEMENT_NODE) {
-                        const childObj = {}
-                        parseNode(childNode, childObj)
-                        if (obj[childNode.nodeName]) {
-                            if (!Array.isArray(obj[childNode.nodeName])) {
-                                obj[childNode.nodeName] = [obj[childNode.nodeName]]
-                            }
-                            obj[childNode.nodeName].push(childObj)
-                        } else {
-                            obj[childNode.nodeName] = childObj
-                        }
-                    }
+            for (let i = 0; i < node.childNodes.length; i++) {
+                const childNode = node.childNodes[i]
+                if (childNode.nodeType != Node.ELEMENT_NODE) continue
+
+                let value = childNode.textContent
+                if (childNode.children.length) {
+                    value = {}
+                    parseNode(childNode, value)
                 }
-            } else {
-                obj[node.nodeName] = node.textContent
+                if (Object.hasOwn(obj, childNode.nodeName)) {
+                    if (!Array.isArray(obj[childNode.nodeName])) {
+                        obj[childNode.nodeName] = [obj[childNode.nodeName]]
+                    }
+                    obj[childNode.nodeName].push(value)
+                } else {
+                    obj[childNode.nodeName] = value
+                }
             }
         }
 
-        parseNode(rootNode, result)
+        if (rootNode.children.length) {
+            parseNode(rootNode, result)
+        } else {
+            result[rootNode.nodeName] = rootNode.textContent
+        }
         return result
     }
 
     static toXML(data) {
         let xmlString = ''
+        function escape(value) {
+            return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        }
 
         function createXMLNodes(obj) {
             for (const key in obj) {
@@ -407,7 +419,7 @@ class jsnt {
                         createXMLNodes(value)
                         xmlString += `</${key}>`
                     } else {
-                        xmlString += `<${key}>${value}</${key}>`
+                        xmlString += `<${key}>${escape(value)}</${key}>`
                     }
                 }
             }
@@ -423,7 +435,7 @@ class jsnt {
     static async #readTxt(linkContent) {
         return await fetch(linkContent)
             .then(result => {
-                if (result.ok == true) {
+                if (result.ok) {
                     return result.text()
                 }
                 throw new Error('Not 2xx response')
